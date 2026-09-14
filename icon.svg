@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="42" fill="#123f32"/><path d="M66 144V63q0-22 23-22h38v23H96q-7 0-7 8v13h33v23H89v36Z" fill="white"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Form">
+  <rect width="512" height="512" fill="#fff"/>
+  <g fill="#123f32">
+    <rect x="130" y="156" width="252" height="24" rx="12"/>
+    <rect x="118" y="139" width="22" height="58" rx="8"/>
+    <rect x="146" y="118" width="34" height="100" rx="10"/>
+    <rect x="332" y="118" width="34" height="100" rx="10"/>
+    <rect x="372" y="139" width="22" height="58" rx="8"/>
+    <text x="251" y="355" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="116" font-weight="700" letter-spacing="-6">Form</text>
+  </g>
+</svg>
