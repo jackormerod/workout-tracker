@@ -1,0 +1,2 @@
+@font-face{font-family:"Form Bodoni Moda";src:url("./bodoni-moda-semibold-italic.ttf?v=6") format("truetype");font-weight:600;font-style:italic;font-display:block}
+.brand .form-wordmark{font-family:"Form Bodoni Moda",serif;font-weight:600;font-style:italic;font-size:44px;line-height:1.2;letter-spacing:-0.02em;font-kerning:normal;font-synthesis:none;margin:0;color:var(--green)}
