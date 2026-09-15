@@ -80,3 +80,7 @@ nav button{white-space:nowrap;overflow-wrap:normal}
 .set-name{align-self:center;padding:0;line-height:1.2;text-align:center}
 .set-name small{white-space:nowrap}
 .exercise>.set-block:last-child>.set-grid:last-child{align-items:center}
+
+/* Centre numeric values without native spinner space shifting the text. */
+.set-grid input[type=number]{text-align:center;padding:0 4px;line-height:normal;appearance:textfield;-moz-appearance:textfield}
+.set-grid input[type=number]::-webkit-inner-spin-button,.set-grid input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
