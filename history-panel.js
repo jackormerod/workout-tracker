@@ -1,5 +1,5 @@
 import {personalBest} from './workout-features.js';
-import {lastPerformance,recommendationText,exerciseName} from './model.js';
+import {lastPerformance,exerciseName} from './model.js';
 
 const escape=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const checkGraphic='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.5 12.5 9.5 17 19.5 6.5" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -13,7 +13,7 @@ export function historyPanel(state,exercise){
  const {workout,exercise:ex}=previous,pb=personalBest(state,workout,ex);
  const date=new Date(workout.endedAt).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
  let working=0,warmup=0;
- return `<section class="last-session" id="${id}" role="region" aria-label="${exerciseName(exercise)} last session" hidden><div class="last-session-title"><h3>Last session</h3><span class="badge">${workout.endedEarly?'Finished early':'Fully completed'}</span></div><p class="muted"><time datetime="${escape(workout.endedAt)}">${date}</time> · Day ${workout.day+1}</p>${ex.sets.map((set,si)=>`<div class="last-session-set"><strong>${set.warmup?`Warm-up ${++warmup}`:`Set ${++working}`}</strong>${pb?.setIndex===si?pbBadge:''}${set.sides.map(arm=>`<p class="${arm.done?'history-set-completed':''}">${ex.unilateral?`<span class="arm-label">${arm.side}:</span> `:''}${arm.weight===''?'Weight not recorded':`${arm.weight} kg`} × ${arm.reps} reps ${completionStatus(arm.done)}</p>`).join('')}</div>`).join('')}<p class="last-session-advice">${escape(recommendationText(ex))}</p></section>`;
+ return `<section class="last-session" id="${id}" role="region" aria-label="${exerciseName(exercise)} last session" hidden><div class="last-session-title"><h3>Last session</h3><span class="badge">${workout.endedEarly?'Finished early':'Fully completed'}</span></div><p class="muted"><time datetime="${escape(workout.endedAt)}">${date}</time> · Day ${workout.day+1}</p>${ex.sets.map((set,si)=>`<div class="last-session-set"><strong>${set.warmup?`Warm-up ${++warmup}`:`Set ${++working}`}</strong>${pb?.setIndex===si?pbBadge:''}${set.sides.map(arm=>`<p class="${arm.done?'history-set-completed':''}">${ex.unilateral?`<span class="arm-label">${arm.side}:</span> `:''}${arm.weight===''?'Weight not recorded':`${arm.weight} kg`} × ${arm.reps} reps ${completionStatus(arm.done)}</p>`).join('')}</div>`).join('')}</section>`;
 }
 
 // Pointer capture keeps release/cancel reliable even outside the button.

@@ -1,10 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Form app icon">
   <title>Form</title>
   <rect width="1024" height="1024" fill="#0B6B53"/>
-  <g transform="translate(105 362) scale(.79)" fill="#FFFFFF">
-    <path d="M88 304V137c0-64 38-97 112-97h166c-7 45-40 71-93 71h-75c-27 0-39 13-39 39v42h130c-8 44-37 66-87 66h-43v46H88z"/>
-    <path fill-rule="evenodd" d="M416 126c87 0 143 47 143 119s-56 119-143 119-143-47-143-119 56-119 143-119zm0 66c-39 0-66 21-66 53s27 53 66 53 66-21 66-53-27-53-66-53z"/>
-    <path d="M565 135h70v33c19-29 48-43 89-41v72c-46-3-83 20-83 72v33h-76V135z"/>
-    <path d="M724 135h69v27c17-23 41-36 72-36 34 0 58 14 70 41 20-27 47-41 81-41 59 0 92 35 92 97v81h-75v-69c0-30-13-45-39-45-29 0-45 18-45 53v61h-75v-69c0-30-13-45-39-45-29 0-44 18-44 53v61h-67V135z" transform="translate(-89 0)"/>
-  </g>
+  <text x="512" y="586" text-anchor="middle" font-family="Rubik" font-size="310" font-weight="700" letter-spacing="-18" fill="#FFFFFF">Form</text>
 </svg>

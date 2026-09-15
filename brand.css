@@ -1,1 +1,1 @@
-.brand picture{display:block;line-height:0}.brand .brand-logo{width:150px;height:54px;object-fit:contain;display:block}
+.brand{display:block;width:180px;max-width:55%;min-width:0}.brand .brand-logo{display:block;width:auto;height:auto;max-width:100%;object-fit:contain}
