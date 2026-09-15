@@ -1,5 +1,5 @@
-const CACHE='form-offline-v6';
-const FILES=['./','./index.html','./style.css','./app.js','./model.js','./history-panel.js','./manifest.webmanifest?v=6','./icon.svg','./icon-192.png?v=6','./icon-512.png?v=6','./apple-touch-icon.png?v=6','./icon-maskable-512.png?v=6','./favicon.svg?v=6','./favicon-32.png?v=6','./brand.svg','./brand.css?v=6','./bodoni-moda-semibold-italic.ttf?v=6','./Bodoni-Moda-OFL.txt'];
+const CACHE='form-offline-v7';
+const FILES=['./','./index.html','./style.css','./app.js','./model.js','./history-panel.js','./manifest.webmanifest?v=7','./icon.svg','./icon-192.png?v=7','./icon-512.png?v=7','./apple-touch-icon.png?v=7','./icon-maskable-512.png?v=7','./favicon.svg?v=7','./favicon-32.png?v=7','./brand.svg','./brand.css?v=7','./workout-features.js','./form-wordmark.svg?v=7','./form-wordmark.png?v=7','./form-app-icon.svg','./form-app-icon.png'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('form-offline-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',event=>{if(event.request.method!=='GET'||new URL(event.request.url).origin!==self.location.origin)return;event.respondWith(caches.match(event.request).then(hit=>hit||fetch(event.request).catch(()=>event.request.mode==='navigate'?caches.match('./index.html'):Response.error())));});
