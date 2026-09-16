@@ -84,3 +84,19 @@ nav button{white-space:nowrap;overflow-wrap:normal}
 /* Centre numeric values without native spinner space shifting the text. */
 .set-grid input[type=number]{text-align:center;padding:0 4px;line-height:normal;appearance:textfield;-moz-appearance:textfield}
 .set-grid input[type=number]::-webkit-inner-spin-button,.set-grid input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+
+/* Refined workout card hierarchy and aligned controls. */
+.day-current{color:var(--brand-green)}.day-total{color:#a3a3a3}
+.day-tabs button{font-size:1.125rem}
+.exercise{--card-space:18px;padding:var(--card-space)}
+.exercise-head{display:flex;flex-direction:column;align-items:flex-start;gap:var(--card-space);margin:0 0 var(--card-space)}
+.exercise-head>div{display:contents}
+.exercise h2{font-size:1.375rem;font-weight:700;font-style:italic;line-height:1.35}
+.exercise-head .last-session-control{height:44px;min-height:44px;margin:0;padding:8px 12px}
+.exercise .set-grid.labels{margin:0 0 var(--card-space);padding:0}
+.exercise .set-grid.labels>span{text-align:center}
+.exercise>.set-block{margin:0 0 var(--set-row-gap)}
+.exercise>.set-block:last-child{margin-bottom:0}
+.set-name{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.set-number{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--brand-green);color:white;font-size:.875rem;font-weight:700;line-height:1}
+@media (max-width:600px){.exercise{padding:var(--card-space)}.exercise-head{gap:var(--card-space)}}
