@@ -100,3 +100,7 @@ nav button{white-space:nowrap;overflow-wrap:normal}
 .set-name{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
 .set-number{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--brand-green);color:white;font-size:.875rem;font-weight:700;line-height:1}
 @media (max-width:600px){.exercise{padding:var(--card-space)}.exercise-head{gap:var(--card-space)}}
+
+/* Keep the brand at the screen edge and scale it without changing its proportions. */
+header{max-width:none;margin:0;padding:28px 16px 20px}
+.brand-logo{transform:translateX(-43px) scale(1.15);transform-origin:left center}
