@@ -91,7 +91,7 @@ nav button{white-space:nowrap;overflow-wrap:normal}
 .exercise{--card-space:18px;padding:var(--card-space)}
 .exercise-head{display:flex;flex-direction:column;align-items:flex-start;gap:var(--card-space);margin:0 0 var(--card-space)}
 .exercise-head>div{display:contents}
-.exercise h2{font-size:1.375rem;font-weight:700;font-style:italic;line-height:1.35}
+.exercise h2{font-size:1.375rem;font-weight:700;font-style:normal;line-height:1.35}
 .exercise-head .last-session-control{height:44px;min-height:44px;margin:0;padding:8px 12px}
 .exercise .set-grid.labels{margin:0 0 var(--card-space);padding:0}
 .exercise .set-grid.labels>span{text-align:center}
@@ -101,6 +101,22 @@ nav button{white-space:nowrap;overflow-wrap:normal}
 .set-number{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--brand-green);color:white;font-size:.875rem;font-weight:700;line-height:1}
 @media (max-width:600px){.exercise{padding:var(--card-space)}.exercise-head{gap:var(--card-space)}}
 
-/* Keep the brand at the screen edge and scale it without changing its proportions. */
-header{max-width:none;margin:0;padding:28px 16px 20px}
-.brand-logo{transform:translateX(-43px) scale(1.15);transform-origin:left center}
+
+/* v17: the wordmark and content use the same container and inset. */
+header{max-width:none;margin:0;padding:28px 28px 20px}
+/* Enlarged header artwork; compensate PNG insets to preserve the approved visible top/left position. */
+header .brand{width:min(328.509px,calc(87.285vw - 27.9312px));max-width:none}
+.brand-logo{transform:translate(-15.0917875%, -5.4182704%)}
+.day-tabs button{font-size:1.4375rem;padding:10px 2px;white-space:nowrap;min-width:0}
+@media(max-width:600px){header{padding:20px}}
+#portrait-message{position:fixed;inset:0;z-index:1000;background:white;color:var(--brand-green);padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+#portrait-message[hidden]{display:none}
+.portrait-required{overflow:hidden}
+.portrait-required body>header,.portrait-required body>nav,.portrait-required body>main,.portrait-required #timer,.portrait-required #confirm{visibility:hidden}
+
+/* Equal visible whitespace above the wordmark and below it to navigation ink. */
+header{--header-top:28px;--header-wordmark-width:min(328.509px,calc(87.285vw - 27.9312px));height:calc(2 * var(--header-top) + .27399758 * var(--header-wordmark-width) - 12px);padding-bottom:0;align-items:flex-start}
+header .brand{width:var(--header-wordmark-width)}
+nav button{display:flex;align-items:flex-start;justify-content:center;padding-top:12px}
+nav .nav-label{display:block;text-box-trim:trim-both;text-box-edge:cap alphabetic}
+@media(max-width:600px){header{--header-top:20px}}

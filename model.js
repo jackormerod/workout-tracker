@@ -1,9 +1,21 @@
-export const programme = [
+export const legacyProgramme = [
  [['Barbell Back Squat',4,6,180],['Flat Barbell Bench Press',3,6,180],['EZ-Bar Curl',3,8,75],['Dumbbell Lateral Raise',3,10,60],['Cable Triceps Kickback',4,12,60,true],['45-Degree Leg-Press Calf Press',3,15,60]],
  [['Romanian Deadlift',3,8,180],['Incline Machine Chest Press',3,10,90],['Narrow-Grip Lat Pulldown',4,10,90],['Standing Barbell Overhead Press',3,6,120],['Preacher Curl',3,10,75],['Dumbbell Shrug',3,8,75]],
  [['Leg Press',4,10,120],['Decline Barbell Bench Press',3,8,120],['Dumbbell Overhead Triceps Extension',4,10,75],['Concentration Curl',3,10,60,true],['Rear-Delt Dumbbell Fly',3,10,60],['Standing Calf Raise',3,15,60]],
  [['Lying Leg Curl',3,12,75],['Wide-Grip Lat Pulldown',4,10,90],['Plate-Loaded Shoulder Press',3,10,90],['Pec Deck',3,12,75],['Incline Dumbbell Curl',3,10,75],['EZ-Bar Upright Row',3,8,75]]
 ].map((day,d)=>day.map(([name,sets,reps,rest,unilateral=false],e)=>({id:`${d}-${e}`,name,sets,reps,rest,unilateral})));
+// IDs are permanent identities, not current day/position coordinates.
+const oldById=Object.fromEntries(legacyProgramme.flat().map(e=>[e.id,e]));
+const item=(id,sets,name)=>({...oldById[id],sets,...(name?{name}:{})});
+const added=(id,name,sets,reps,rest)=>({id,name,sets,reps,rest,unilateral:false});
+export const programme=[
+ [item('0-1',4),item('0-0',4),item('0-2',4),added('leg-extension','Leg Extension',3,10,90),item('0-4',3,'Tricep Cable Kickbacks'),item('0-5',5)],
+ [item('1-1',4),item('2-0',4),item('1-2',4),item('1-3',3),item('1-4',4),item('3-2',3),added('seated-tricep-dips','Seated Tricep Dips',3,8,90)],
+ [item('2-1',4),item('1-0',4),item('2-2',4),item('2-3',3),item('2-4',3),item('2-5',5)],
+ [item('3-1',4),item('3-0',4),item('3-3',3),item('3-4',3),item('3-5',4),added('seated-rows','Seated Rows',4,10,90),item('1-5',4)]
+];
+// Include retired exercises in progress/settings so historic results stay reachable.
+export const exerciseCatalog=[...programme.flat(),...legacyProgramme.flat().filter(e=>!programme.flat().some(n=>n.id===e.id))];
 export const fresh=()=>({version:1,nextDay:0,activeDay:null,drafts:{},history:[],settings:{rest:{}},timer:null});
 const displayNames={'0-5':'45° Calf Press','1-0':'Romanian Barbell Deadlift','1-1':'Incline Plate Loaded Chest Press','1-4':'Preacher Machine Curl'};
 // Presentation only: stored names, stable IDs and old backup validation stay intact.
@@ -26,11 +38,11 @@ export function lastPerformance(state,id){
 export const previous=(state,id)=>lastPerformance(state,id)?.exercise;
 export function recommendation(ex){
  if(!ex)return 'retain';
- const sets=ex.sets.filter(s=>!s.warmup),prescribed=programme.flat().find(e=>e.id===ex.id)?.sets??sets.length;
+ const sets=ex.sets.filter(s=>!s.warmup),prescribed=ex.prescribedSets??sets.length;
  return sets.length===prescribed&&prescribed>0&&sets.every(s=>s.sides.length===(ex.unilateral?2:1)&&complete(s)&&s.sides.every(a=>a.weight!==''&&Number.isFinite(a.weight)&&a.reps>=ex.reps))?'increase':'retain';
 }
 export function recommendationText(ex){
- const sets=ex.sets.filter(s=>!s.warmup),n=programme.flat().find(e=>e.id===ex.id)?.sets??sets.length;
+ const sets=ex.sets.filter(s=>!s.warmup),n=ex.prescribedSets??sets.length;
  const weights=sets.flatMap(s=>s.sides.map(a=>a.weight)).filter(w=>w!=='');
  let load='your previous set weights';
  if(weights.length&&weights.every(w=>w===weights[0]))load=`${weights[0]} kg`;
@@ -38,7 +50,7 @@ export function recommendationText(ex){
  if(recommendation(ex)==='increase')return `Increase from ${load} by your smallest available increment — ${ex.unilateral?'both arms completed':'you completed'} all ${n} sets of ${ex.reps}.`;
  return `Keep ${load} — ${ex.unilateral?'both arms must complete':'complete'} all ${n} sets of ${ex.reps} before increasing.`;
 }
-export function makeSession(state,day){return {id:globalThis.crypto.randomUUID(),day,startedAt:new Date().toISOString(),exercises:programme[day].map(ex=>{const prev=previous(state,ex.id);return {...ex,sets:Array.from({length:ex.sets},(_,i)=>({warmup:false,sides:(ex.unilateral?['Left','Right']:['Both']).map((side,j)=>({side,weight:prev?.sets.filter(s=>!s.warmup)[i]?.sides[j]?.weight??'',reps:ex.reps,done:false,recorded:false}))}))};})};}
+export function makeSession(state,day){return {id:globalThis.crypto.randomUUID(),day,startedAt:new Date().toISOString(),exercises:programme[day].map(ex=>{const prev=previous(state,ex.id);return {...ex,prescribedSets:ex.sets,sets:Array.from({length:ex.sets},(_,i)=>({warmup:false,sides:(ex.unilateral?['Left','Right']:['Both']).map((side,j)=>({side,weight:prev?.sets.filter(s=>!s.warmup)[i]?.sides[j]?.weight??'',reps:ex.reps,done:false,recorded:false}))}))};})};}
 export function finish(state,day){const session=state.drafts[day];if(!session)throw Error('No workout started');const endedEarly=count(session)!==total(session);state.history.unshift({...session,endedAt:new Date().toISOString(),endedEarly});delete state.drafts[day];state.nextDay=(day+1)%4;state.activeDay=state.drafts[state.nextDay]?state.nextDay:Object.keys(state.drafts).map(Number)[0]??null;state.timer=null;return state.nextDay;}
 export function remaining(timer,now=Date.now()){return !timer?0:timer.paused?timer.remaining:Math.max(0,Math.ceil((timer.endsAt-now)/1000));}
 export function validate(data){
@@ -46,12 +58,15 @@ export function validate(data){
  const date=v=>typeof v==='string'&&Number.isFinite(Date.parse(v));
  if(!data||data.version!==1||!num(data.nextDay,0,3)||!Number.isInteger(data.nextDay)||!Array.isArray(data.history)||!data.drafts||!data.settings?.rest)throw Error('This is not a valid Form backup.');
  const sessions=[...data.history,...Object.values(data.drafts)];
- for(const s of sessions){if(!Number.isInteger(s.day)||!programme[s.day]||!date(s.startedAt)||typeof s.id!=='string'||!Array.isArray(s.exercises)||s.exercises.length!==6)throw Error('Invalid workout in backup.');if(s.endedAt!==undefined&&(!date(s.endedAt)||typeof s.endedEarly!=='boolean'))throw Error('Invalid workout date.');
- s.exercises.forEach((e,i)=>{const spec=programme[s.day][i];if(e.id!==spec.id||e.name!==spec.name||e.reps!==spec.reps||!num(e.rest,15,900)||!Number.isInteger(e.rest)||e.unilateral!==spec.unilateral||!Array.isArray(e.sets)||e.sets.length>100||e.sets.filter(x=>!x.warmup).length!==spec.sets)throw Error('Invalid exercise in backup.');for(const set of e.sets){if(set.completionOrder!==undefined&&(!num(set.completionOrder,1,1e9)||!Number.isInteger(set.completionOrder)))throw Error('Invalid completion order.');if(typeof set.warmup!=='boolean'||!Array.isArray(set.sides)||set.sides.length!==(spec.unilateral?2:1))throw Error('Invalid set.');set.sides.forEach((a,j)=>{if(a.side!==(spec.unilateral?['Left','Right'][j]:'Both')||!(a.weight===''||num(a.weight,0,2000))||!num(a.reps,0,1000)||!Number.isInteger(a.reps)||typeof a.done!=='boolean'||(a.recorded!==undefined&&typeof a.recorded!=='boolean')||(a.done&&a.weight===''))throw Error('Invalid weight or reps.');});}});}
+ for(const s of sessions){if(!Number.isInteger(s.day)||!programme[s.day]||!date(s.startedAt)||typeof s.id!=='string'||!Array.isArray(s.exercises)||![6,7].includes(s.exercises.length))throw Error('Invalid workout in backup.');if(s.endedAt!==undefined&&(!date(s.endedAt)||typeof s.endedEarly!=='boolean'))throw Error('Invalid workout date.');
+ // Match a whole historic/current prescription by identity, never by array position.
+ const plan=[legacyProgramme[s.day],programme[s.day]].find(plan=>plan.length===s.exercises.length&&plan.every(spec=>s.exercises.some(e=>e.id===spec.id&&e.name===spec.name&&e.reps===spec.reps&&Array.isArray(e.sets)&&e.sets.filter(x=>!x.warmup).length===spec.sets)));
+ if(!plan||new Set(s.exercises.map(e=>e.id)).size!==s.exercises.length)throw Error('Unknown workout prescription.');
+ s.exercises.forEach(e=>{const spec=plan.find(x=>x.id===e.id);if(e.id!==spec.id||e.name!==spec.name||e.reps!==spec.reps||(e.prescribedSets!==undefined&&e.prescribedSets!==spec.sets)||!num(e.rest,15,900)||!Number.isInteger(e.rest)||e.unilateral!==spec.unilateral||!Array.isArray(e.sets)||e.sets.length>100||e.sets.filter(x=>!x.warmup).length!==spec.sets)throw Error('Invalid exercise in backup.');for(const set of e.sets){if(set.completionOrder!==undefined&&(!num(set.completionOrder,1,1e9)||!Number.isInteger(set.completionOrder)))throw Error('Invalid completion order.');if(typeof set.warmup!=='boolean'||!Array.isArray(set.sides)||set.sides.length!==(spec.unilateral?2:1))throw Error('Invalid set.');set.sides.forEach((a,j)=>{if(a.side!==(spec.unilateral?['Left','Right'][j]:'Both')||!(a.weight===''||num(a.weight,0,2000))||!num(a.reps,0,1000)||!Number.isInteger(a.reps)||typeof a.done!=='boolean'||(a.recorded!==undefined&&typeof a.recorded!=='boolean')||(a.done&&a.weight===''))throw Error('Invalid weight or reps.');});}});}
  for(const [key,s] of Object.entries(data.drafts))if(String(s.day)!==key||s.endedAt)throw Error('Invalid saved session.');
  if(data.history.some(s=>!s.endedAt))throw Error('Missing finish date.');
  if(data.activeDay!==null&&(!Number.isInteger(data.activeDay)||!data.drafts[data.activeDay]))throw Error('Invalid active day.');
- for(const [id,v]of Object.entries(data.settings.rest))if(!programme.flat().some(e=>e.id===id)||!num(v,15,900)||!Number.isInteger(v))throw Error('Invalid rest duration.');
+ for(const [id,v]of Object.entries(data.settings.rest))if(!exerciseCatalog.some(e=>e.id===id)||!num(v,15,900)||!Number.isInteger(v))throw Error('Invalid rest duration.');
  if(data.timer!==null){const t=data.timer;if(!t||!num(t.duration,15,900)||!num(t.endsAt,0,1e15)||!num(t.remaining,0,86400)||typeof t.paused!=='boolean'||typeof t.label!=='string')throw Error('Invalid timer.');}
  return data;
 }

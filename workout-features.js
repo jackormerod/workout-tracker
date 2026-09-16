@@ -1,13 +1,15 @@
-import {programme,complete} from './model.js';
+import {programme,legacyProgramme,complete} from './model.js';
 
-const initialMinutes=[58,54,55,48];
-export function durationBreakdown(day,rest={}){
- const exercises=programme[day];
+const initialMinutes=[66,67,65,62];
+export function durationBreakdown(day,rest={},session=null){
+ const legacy=session&&!session.exercises.some(e=>e.prescribedSets!==undefined);
+ const plan=legacy?legacyProgramme[day]:programme[day];
+ const exercises=session?session.exercises.map(e=>({...e,sets:e.sets.filter(s=>!s.warmup).length})):plan;
  const execution=exercises.reduce((n,e)=>n+e.sets*(20+e.reps*3*(e.unilateral?2:1)),0);
  const transitions=(exercises.length-1)*75;
  const prescribedRest=exercises.reduce((n,e)=>n+(e.sets-1)*e.rest,0);
  // Preparation/warm-up allowance calibrates the programme's initial estimates.
- const preparation=initialMinutes[day]*60-execution-transitions-prescribedRest;
+ const preparation=(legacy?[58,54,55,48]:initialMinutes)[day]*60-execution-transitions-prescribedRest;
  const betweenSets=exercises.reduce((n,e)=>n+(e.sets-1)*(rest[e.id]??e.rest),0);
  return {execution,transitions,preparation,rest:betweenSets,minutes:Math.round((execution+transitions+preparation+betweenSets)/60)};
 }
@@ -28,11 +30,11 @@ function olderWorkouts(state,session){
 }
 // PBs are derived from saved results, never by rewriting old workout records.
 export function personalBest(state,session,exercise){
- const spec=programme.flat().find(e=>e.id===exercise.id);if(!spec)return null;
+ const spec=exercise;
  const baseline=Array(spec.unilateral?2:1).fill(-Infinity);
  for(const workout of olderWorkouts(state,session)){
   const old=workout.exercises.find(e=>e.id===spec.id);if(!old)continue;
-  for(const set of old.sets.filter(s=>!s.warmup))set.sides.forEach((arm,i)=>{if(i<baseline.length&&qualifyingArm(arm,spec.reps))baseline[i]=Math.max(baseline[i],arm.weight);});
+  for(const set of old.sets.filter(s=>!s.warmup))set.sides.forEach((arm,i)=>{if(i<baseline.length&&qualifyingArm(arm,old.reps))baseline[i]=Math.max(baseline[i],arm.weight);});
  }
  const ordered=exercise.sets.map((set,index)=>({set,index})).filter(({set})=>!set.warmup).sort((a,b)=>(a.set.completionOrder??a.index+1)-(b.set.completionOrder??b.index+1));
  for(const {set,index}of ordered)if(set.sides.length===baseline.length&&set.sides.every((arm,i)=>qualifyingArm(arm,spec.reps)&&arm.weight>baseline[i]))return {setIndex:index,sideIndex:baseline.length-1,weights:set.sides.map(a=>a.weight)};
