@@ -1,6 +1,6 @@
 import {programme,legacyProgramme,complete} from './model.js';
 
-const initialMinutes=[66,67,65,62];
+const initialMinutes=[66,66,66,62];
 export function durationBreakdown(day,rest={},session=null){
  const legacy=session&&!session.exercises.some(e=>e.prescribedSets!==undefined);
  const plan=legacy?legacyProgramme[day]:programme[day];

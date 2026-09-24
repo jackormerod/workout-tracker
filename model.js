@@ -8,11 +8,17 @@ export const legacyProgramme = [
 const oldById=Object.fromEntries(legacyProgramme.flat().map(e=>[e.id,e]));
 const item=(id,sets,name)=>({...oldById[id],sets,...(name?{name}:{})});
 const added=(id,name,sets,reps,rest)=>({id,name,sets,reps,rest,unilateral:false});
-export const programme=[
+export const previousProgramme=[
  [item('0-1',4),item('0-0',4),item('0-2',4),added('leg-extension','Leg Extension',3,10,90),item('0-4',3,'Tricep Cable Kickbacks'),item('0-5',5)],
  [item('1-1',4),item('2-0',4),item('1-2',4),item('1-3',3),item('1-4',4),item('3-2',3),added('seated-tricep-dips','Seated Tricep Dips',3,8,90)],
  [item('2-1',4),item('1-0',4),item('2-2',4),item('2-3',3),item('2-4',3),item('2-5',5)],
  [item('3-1',4),item('3-0',4),item('3-3',3),item('3-4',3),item('3-5',4),added('seated-rows','Seated Rows',4,10,90),item('1-5',4)]
+];
+export const programme=[
+ previousProgramme[0],
+ previousProgramme[1].map(ex=>ex.id==='3-2'?item('2-4',3):ex),
+ previousProgramme[2].map(ex=>ex.id==='2-4'?item('3-2',3):ex),
+ previousProgramme[3]
 ];
 // Include retired exercises in progress/settings so historic results stay reachable.
 export const exerciseCatalog=[...programme.flat(),...legacyProgramme.flat().filter(e=>!programme.flat().some(n=>n.id===e.id))];
@@ -58,9 +64,9 @@ export function validate(data){
  const date=v=>typeof v==='string'&&Number.isFinite(Date.parse(v));
  if(!data||data.version!==1||!num(data.nextDay,0,3)||!Number.isInteger(data.nextDay)||!Array.isArray(data.history)||!data.drafts||!data.settings?.rest)throw Error('This is not a valid Form backup.');
  const sessions=[...data.history,...Object.values(data.drafts)];
- for(const s of sessions){if(!Number.isInteger(s.day)||!programme[s.day]||!date(s.startedAt)||typeof s.id!=='string'||!Array.isArray(s.exercises)||![6,7].includes(s.exercises.length))throw Error('Invalid workout in backup.');if(s.endedAt!==undefined&&(!date(s.endedAt)||typeof s.endedEarly!=='boolean'))throw Error('Invalid workout date.');
+ for(const s of sessions){if(!Number.isInteger(s.day)||!programme[s.day]||!date(s.startedAt)||typeof s.id!=='string'||!Array.isArray(s.exercises)||![6,7].includes(s.exercises.length))throw Error('Invalid workout in backup.');if(s.workoutStartedAt!==undefined&&!date(s.workoutStartedAt))throw Error('Invalid workout start date.');if(s.endedAt!==undefined&&(!date(s.endedAt)||typeof s.endedEarly!=='boolean'))throw Error('Invalid workout date.');
  // Match a whole historic/current prescription by identity, never by array position.
- const plan=[legacyProgramme[s.day],programme[s.day]].find(plan=>plan.length===s.exercises.length&&plan.every(spec=>s.exercises.some(e=>e.id===spec.id&&e.name===spec.name&&e.reps===spec.reps&&Array.isArray(e.sets)&&e.sets.filter(x=>!x.warmup).length===spec.sets)));
+ const plan=[legacyProgramme[s.day],previousProgramme[s.day],programme[s.day]].find(plan=>plan.length===s.exercises.length&&plan.every(spec=>s.exercises.some(e=>e.id===spec.id&&e.name===spec.name&&e.reps===spec.reps&&Array.isArray(e.sets)&&e.sets.filter(x=>!x.warmup).length===spec.sets)));
  if(!plan||new Set(s.exercises.map(e=>e.id)).size!==s.exercises.length)throw Error('Unknown workout prescription.');
  s.exercises.forEach(e=>{const spec=plan.find(x=>x.id===e.id);if(e.id!==spec.id||e.name!==spec.name||e.reps!==spec.reps||(e.prescribedSets!==undefined&&e.prescribedSets!==spec.sets)||!num(e.rest,15,900)||!Number.isInteger(e.rest)||e.unilateral!==spec.unilateral||!Array.isArray(e.sets)||e.sets.length>100||e.sets.filter(x=>!x.warmup).length!==spec.sets)throw Error('Invalid exercise in backup.');for(const set of e.sets){if(set.completionOrder!==undefined&&(!num(set.completionOrder,1,1e9)||!Number.isInteger(set.completionOrder)))throw Error('Invalid completion order.');if(typeof set.warmup!=='boolean'||!Array.isArray(set.sides)||set.sides.length!==(spec.unilateral?2:1))throw Error('Invalid set.');set.sides.forEach((a,j)=>{if(a.side!==(spec.unilateral?['Left','Right'][j]:'Both')||!(a.weight===''||num(a.weight,0,2000))||!num(a.reps,0,1000)||!Number.isInteger(a.reps)||typeof a.done!=='boolean'||(a.recorded!==undefined&&typeof a.recorded!=='boolean')||(a.done&&a.weight===''))throw Error('Invalid weight or reps.');});}});}
  for(const [key,s] of Object.entries(data.drafts))if(String(s.day)!==key||s.endedAt)throw Error('Invalid saved session.');
