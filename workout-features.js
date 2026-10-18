@@ -1,4 +1,4 @@
-import {programme,legacyProgramme,complete} from './model.js';
+import {programme,prePushdownProgramme,legacyProgramme,complete} from './model.js';
 
 const initialMinutes=[66,66,66,62];
 export function durationBreakdown(day,rest={},session=null){
@@ -7,9 +7,12 @@ export function durationBreakdown(day,rest={},session=null){
  const exercises=session?session.exercises.map(e=>({...e,sets:e.sets.filter(s=>!s.warmup).length})):plan;
  const execution=exercises.reduce((n,e)=>n+e.sets*(20+e.reps*3*(e.unilateral?2:1)),0);
  const transitions=(exercises.length-1)*75;
- const prescribedRest=exercises.reduce((n,e)=>n+(e.sets-1)*e.rest,0);
- // Preparation/warm-up allowance calibrates the programme's initial estimates.
- const preparation=(legacy?[58,54,55,48]:initialMinutes)[day]*60-execution-transitions-prescribedRest;
+ // Preserve Day 1's existing preparation allowance instead of recalibrating
+ // away the execution/rest difference introduced by the replacement exercise.
+ const calibration=!legacy&&day===0?prePushdownProgramme[0]:exercises;
+ const calibrationExecution=calibration.reduce((n,e)=>n+e.sets*(20+e.reps*3*(e.unilateral?2:1)),0);
+ const calibrationRest=calibration.reduce((n,e)=>n+(e.sets-1)*e.rest,0);
+ const preparation=(legacy?[58,54,55,48]:initialMinutes)[day]*60-calibrationExecution-(calibration.length-1)*75-calibrationRest;
  const betweenSets=exercises.reduce((n,e)=>n+(e.sets-1)*(rest[e.id]??e.rest),0);
  return {execution,transitions,preparation,rest:betweenSets,minutes:Math.round((execution+transitions+preparation+betweenSets)/60)};
 }
