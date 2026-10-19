@@ -21,9 +21,11 @@ export const prePushdownProgramme=[
  previousProgramme[3]
 ];
 // New exercise identity; saved kickback sessions and their two-arm data stay intact.
-export const programme=prePushdownProgramme.map((day,index)=>index===0?day.map(ex=>ex.id==='0-4'?added('tricep-rope-pushdowns','Tricep Rope Pushdowns',4,12,60):ex):day);
+export const preHackSquatProgramme=prePushdownProgramme.map((day,index)=>index===0?day.map(ex=>ex.id==='0-4'?added('tricep-rope-pushdowns','Tricep Rope Pushdowns',4,12,60):ex):day);
+// Hack Squat is a different movement; old squat data retains its identity.
+export const programme=preHackSquatProgramme.map((day,index)=>index===0?day.map(ex=>ex.id==='0-0'?added('hack-squat','Hack Squat',4,6,180):ex):day);
 // Keep every retired identity available to Progress, settings and backup validation.
-export const exerciseCatalog=[...programme.flat(),...prePushdownProgramme.flat(),...legacyProgramme.flat()].filter((ex,index,list)=>list.findIndex(e=>e.id===ex.id)===index);
+export const exerciseCatalog=[...programme.flat(),...preHackSquatProgramme.flat(),...prePushdownProgramme.flat(),...legacyProgramme.flat()].filter((ex,index,list)=>list.findIndex(e=>e.id===ex.id)===index);
 export const fresh=()=>({version:1,nextDay:0,activeDay:null,drafts:{},history:[],settings:{rest:{}},timer:null});
 const displayNames={'0-5':'45° Calf Press','1-0':'Romanian Barbell Deadlift','1-1':'Incline Plate Loaded Chest Press','1-4':'Preacher Machine Curl'};
 // Presentation only: stored names, stable IDs and old backup validation stay intact.
@@ -68,7 +70,7 @@ export function validate(data){
  const sessions=[...data.history,...Object.values(data.drafts)];
  for(const s of sessions){if(!Number.isInteger(s.day)||!programme[s.day]||!date(s.startedAt)||typeof s.id!=='string'||!Array.isArray(s.exercises)||![6,7].includes(s.exercises.length))throw Error('Invalid workout in backup.');if(s.workoutStartedAt!==undefined&&!date(s.workoutStartedAt))throw Error('Invalid workout start date.');if(s.endedAt!==undefined&&(!date(s.endedAt)||typeof s.endedEarly!=='boolean'))throw Error('Invalid workout date.');
  // Match a whole historic/current prescription by identity, never by array position.
- const plan=[legacyProgramme[s.day],previousProgramme[s.day],prePushdownProgramme[s.day],programme[s.day]].find(plan=>plan.length===s.exercises.length&&plan.every(spec=>s.exercises.some(e=>e.id===spec.id&&e.name===spec.name&&e.reps===spec.reps&&Array.isArray(e.sets)&&e.sets.filter(x=>!x.warmup).length===spec.sets)));
+ const plan=[legacyProgramme[s.day],previousProgramme[s.day],prePushdownProgramme[s.day],preHackSquatProgramme[s.day],programme[s.day]].find(plan=>plan.length===s.exercises.length&&plan.every(spec=>s.exercises.some(e=>e.id===spec.id&&e.name===spec.name&&e.reps===spec.reps&&Array.isArray(e.sets)&&e.sets.filter(x=>!x.warmup).length===spec.sets)));
  if(!plan||new Set(s.exercises.map(e=>e.id)).size!==s.exercises.length)throw Error('Unknown workout prescription.');
  s.exercises.forEach(e=>{const spec=plan.find(x=>x.id===e.id);if(e.id!==spec.id||e.name!==spec.name||e.reps!==spec.reps||(e.prescribedSets!==undefined&&e.prescribedSets!==spec.sets)||!num(e.rest,15,900)||!Number.isInteger(e.rest)||e.unilateral!==spec.unilateral||!Array.isArray(e.sets)||e.sets.length>100||e.sets.filter(x=>!x.warmup).length!==spec.sets)throw Error('Invalid exercise in backup.');for(const set of e.sets){if(set.completionOrder!==undefined&&(!num(set.completionOrder,1,1e9)||!Number.isInteger(set.completionOrder)))throw Error('Invalid completion order.');if(typeof set.warmup!=='boolean'||!Array.isArray(set.sides)||set.sides.length!==(spec.unilateral?2:1))throw Error('Invalid set.');set.sides.forEach((a,j)=>{if(a.side!==(spec.unilateral?['Left','Right'][j]:'Both')||!(a.weight===''||num(a.weight,0,2000))||!num(a.reps,0,1000)||!Number.isInteger(a.reps)||typeof a.done!=='boolean'||(a.recorded!==undefined&&typeof a.recorded!=='boolean')||(a.done&&a.weight===''))throw Error('Invalid weight or reps.');});}});}
  for(const [key,s] of Object.entries(data.drafts))if(String(s.day)!==key||s.endedAt)throw Error('Invalid saved session.');
