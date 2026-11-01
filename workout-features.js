@@ -1,4 +1,4 @@
-import {programme,prePushdownProgramme,legacyProgramme,complete} from './model.js';
+import {programme,preShoulderProgramme,prePushdownProgramme,legacyProgramme,complete} from './model.js';
 
 const initialMinutes=[66,66,66,62];
 export function durationBreakdown(day,rest={},session=null){
@@ -7,9 +7,10 @@ export function durationBreakdown(day,rest={},session=null){
  const exercises=session?session.exercises.map(e=>({...e,sets:e.sets.filter(s=>!s.warmup).length})):plan;
  const execution=exercises.reduce((n,e)=>n+e.sets*(20+e.reps*3*(e.unilateral?2:1)),0);
  const transitions=(exercises.length-1)*75;
- // Preserve Day 1's existing preparation allowance instead of recalibrating
- // away the execution/rest difference introduced by the replacement exercise.
- const calibration=!legacy&&day===0?prePushdownProgramme[0]:exercises;
+ // Keep existing preparation allowances so changed execution and rest costs
+ // remain visible. Historic drafts retain their original timing calculation.
+ const shoulderUpdate=exercises.some(e=>e.id==='seated-dumbbell-shoulder-press'||e.id==='machine-lateral-raise');
+ const calibration=!legacy&&day===0?prePushdownProgramme[0]:shoulderUpdate?preShoulderProgramme[day]:exercises;
  const calibrationExecution=calibration.reduce((n,e)=>n+e.sets*(20+e.reps*3*(e.unilateral?2:1)),0);
  const calibrationRest=calibration.reduce((n,e)=>n+(e.sets-1)*e.rest,0);
  const preparation=(legacy?[58,54,55,48]:initialMinutes)[day]*60-calibrationExecution-(calibration.length-1)*75-calibrationRest;
