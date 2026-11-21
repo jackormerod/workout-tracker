@@ -1,5 +1,5 @@
-const CACHE='form-offline-v25';
-const FILES=['./','./index.html','./style.css','./app.js','./model.js','./orientation.js','./history-panel.js','./manifest.webmanifest?v=25','./icon.svg','./icon-192.png?v=17','./icon-512.png?v=17','./apple-touch-icon.png?v=17','./icon-maskable-512.png?v=17','./favicon.svg?v=17','./favicon-32.png?v=17','./brand.svg','./brand.css?v=17','./workout-features.js','./form-wordmark.svg?v=17','./form-wordmark.png?v=17','./form-app-icon.svg','./form-app-icon.png','./Rubik-Bold.ttf'];
+const CACHE='form-offline-v26';
+const FILES=['./','./index.html','./style.css','./app.js','./model.js','./orientation.js','./history-panel.js','./manifest.webmanifest?v=26','./icon.svg','./icon-192.png?v=17','./icon-512.png?v=17','./apple-touch-icon.png?v=17','./icon-maskable-512.png?v=17','./favicon.svg?v=17','./favicon-32.png?v=17','./brand.svg','./brand.css?v=17','./workout-features.js','./form-wordmark.svg?v=17','./form-wordmark.png?v=17','./form-app-icon.svg','./form-app-icon.png','./Rubik-Bold.ttf'];
 FILES.push('./sync-background.js','./form-sync.js','./sync.html','./sync-page.js','./cloud.js');
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('form-offline-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
